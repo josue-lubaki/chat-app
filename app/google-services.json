@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "659244207930",
+    "project_id": "chat-application-10858",
+    "storage_bucket": "chat-application-10858.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659244207930:android:fe5d7560ce5cfe2a9e8a03",
+        "android_client_info": {
+          "package_name": "ca.josue_lubaki.chatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBedHQW5w-BDDHvogKOD7LmtDSzGtylTzY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
