@@ -60,7 +60,9 @@ android {
 
 dependencies {
 
+    implementation(projects.common)
     implementation(projects.features.register)
+    implementation(projects.features.login)
 
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
@@ -70,6 +72,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -78,9 +81,23 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    /// firebase dependancies
-    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    // navigation compose
+    implementation(libs.androidx.navigation.compose)
+
+    // Koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
+    implementation(libs.window.size)
+    implementation(libs.accompanist.adaptive)
+
+    debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.ui.tooling.preview)
+
+    /// firebase dependencies
+    implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     implementation(libs.firebase.core)
     implementation("com.google.firebase:firebase-database")
-    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-analytics")
 }

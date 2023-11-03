@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="username_input">Enter username</string>
+    <string name="email_input">Enter email</string>
+    <string name="password_input">Enter password</string>
+    <string name="password_confirm_input">Enter Confirm password</string>
+    <string name="register">Register</string>
+    <string name="signup">Sign up</string>
+    <string name="already_have_an_account">Already have an account?</string>
+</resources>

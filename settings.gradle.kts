@@ -18,3 +18,5 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "ChatApp"
 include(":app")
 include(":features:register")
+include(":common")
+include(":features:login")

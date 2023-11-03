@@ -1,5 +1,5 @@
 [versions]
-agp = "8.2.0-alpha03"
+agp = "8.3.0-alpha10"
 firebase-core = "21.1.1"
 kotlin = "1.9.0"
 core-ktx = "1.12.0"
@@ -10,9 +10,19 @@ lifecycle-runtime-ktx = "2.6.2"
 activity-compose = "1.8.0"
 compose-bom = "2023.10.01"
 appcompat = "1.6.1"
+koinVersion = "3.4.3"
+accompanistVersion = "0.31.0-alpha"
+navigationComposeVersion = "2.7.4"
+uiToolingPreviewVersion = "1.5.4"
+uiToolingVersion = "1.5.4"
 material = "1.10.0"
+googleServicesVersion = "4.4.0"
+firebase-firestore = "24.9.1"
+firebase-database = "20.3.0"
 
 [libraries]
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreviewVersion" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 firebase-core = { module = "com.google.firebase:firebase-core", version.ref = "firebase-core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -21,6 +31,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+window-size = { group = "androidx.compose.material3", name = "material3-window-size-class" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -29,7 +40,15 @@ ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinVersion" }
+koin-android-scope = { group = "io.insert-koin", name = "koin-android-scope", version = "2.2.3" }
+accompanist-adaptive = { group = "com.google.accompanist", name = "accompanist-adaptive", version.ref = "accompanistVersion" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiToolingVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServicesVersion" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebase-database" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
