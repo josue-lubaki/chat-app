@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="sign_in_title">Sign in</string>
+    <string name="email_input">Enter email</string>
+    <string name="password_input">Enter password</string>
+    <string name="login_button">Login</string>
+    <string name="register_button">Register</string>
+    <string name="have_not_an_account">Don\'t have an account ?</string>
+
+</resources>

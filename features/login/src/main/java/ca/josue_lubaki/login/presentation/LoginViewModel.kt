@@ -2,6 +2,8 @@ package ca.josue_lubaki.login.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,8 +20,8 @@ import kotlinx.coroutines.CoroutineDispatcher
  */
 
 class LoginViewModel(
-//    private val useCase: LoginUseCase,
     private val dispatcher: CoroutineDispatcher,
+    private val firebaseAuth: FirebaseAuth,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
@@ -27,41 +29,22 @@ class LoginViewModel(
 
     fun onEvent(event: LoginEvent) {
         when (event) {
-            //==== if you need execute actions ====//
-            is LoginEvent.OnLoadData -> getAllData()
+            is LoginEvent.OnSignIn -> event.reduce()
         }
     }
 
-    private fun getAllData() {
+    private fun LoginEvent.OnSignIn.reduce() {
         _state.value = LoginState.Loading
         try {
             viewModelScope.launch(dispatcher) {
-                //==== if your useCase is a flow ====/
-                /*
-                    useCase().collect { response ->
-                        when (response) {
-                            is LoginStatus.Success -> {
-                                _state.value = LoginState.Success(response.data)
-                            }
-
-                            is LoginStatus.Error -> {
-                                _state.value = LoginState.Error(response.error)
-                            }
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            _state.value = LoginState.Success
+                        } else {
+                            _state.value = LoginState.Error(Exception(task.exception))
                         }
                     }
-                */
-
-                //==== if it's not a flow ====//
-                /*
-                    when (val response = useCase()) {
-                        is LoginStatus.Success -> {
-                            _state.value = LoginState.Success(response.data)
-                        }
-                        is LoginStatus.Error -> {
-                            _state.value = LoginState.Error(response.error)    
-                        }
-                    }
-                */
             }
         } catch (e: Exception) {
             // handle errors

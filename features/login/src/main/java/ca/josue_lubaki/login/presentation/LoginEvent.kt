@@ -7,5 +7,8 @@ package ca.josue_lubaki.login.presentation
  */
 
 sealed class LoginEvent {
-    object OnLoadData : LoginEvent()
+    data class OnSignIn(
+        val email: String,
+        val password: String
+    ) : LoginEvent()
 }

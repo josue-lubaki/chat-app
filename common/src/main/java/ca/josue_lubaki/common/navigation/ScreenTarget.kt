@@ -9,6 +9,6 @@ package ca.josue_lubaki.common.navigation
 sealed class ScreenTarget(val route : String) {
     data object Login : ScreenTarget("login")
     data object Register : ScreenTarget("register")
-    data object Home : ScreenTarget("home")
+    data object Dashboard : ScreenTarget("dashboard")
     data object Splash : ScreenTarget("splash")
 }

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ca.josue_lubaki.common.navigation.ScreenTarget
+import ca.josue_lubaki.dashboard.presentation.DashboardScreen
 
 /**
  * created by Josue Lubaki
@@ -32,6 +33,14 @@ fun NavGraph(
             navController = navController,
             windowSize = windowSize
         )
+
+        composable(ScreenTarget.Dashboard.route){
+            DashboardScreen(
+                onNavigateToRoute = { route : String ->
+                    navController.navigate(route)
+                }
+            )
+        }
 
     }
 }
