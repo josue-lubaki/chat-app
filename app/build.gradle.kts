@@ -63,7 +63,7 @@ dependencies {
     implementation(projects.common)
     implementation(projects.features.register)
     implementation(projects.features.login)
-    implementation(projects.features.dashboard)
+    implementation(projects.features.users)
 
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)

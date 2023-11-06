@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ca.josue_lubaki.common.navigation.ScreenTarget
-import ca.josue_lubaki.dashboard.presentation.DashboardScreen
+import ca.josue_lubaki.users.presentation.DashboardScreen
 
 /**
  * created by Josue Lubaki

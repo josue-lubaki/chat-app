@@ -1,4 +1,4 @@
-package ca.josue_lubaki.dashboard.presentation
+package ca.josue_lubaki.users.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,23 +14,23 @@ import kotlinx.coroutines.CoroutineDispatcher
  * version : 1.0.0
  */
 
-class DashboardViewModel(
+class UsersViewModel(
 //    private val useCase: DashboardUseCase,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<DashboardState>(DashboardState.Idle)
-    val state: StateFlow<DashboardState> = _state.asStateFlow()
+    private val _state = MutableStateFlow<UsersState>(UsersState.Idle)
+    val state: StateFlow<UsersState> = _state.asStateFlow()
 
-    fun onEvent(event: DashboardEvent) {
+    fun onEvent(event: UsersEvent) {
         when (event) {
             //==== if you need execute actions ====//
-            is DashboardEvent.OnLoadData -> getAllData()
+            is UsersEvent.OnLoadData -> getAllData()
         }
     }
 
     private fun getAllData() {
-        _state.value = DashboardState.Loading
+        _state.value = UsersState.Loading
         try {
             viewModelScope.launch(dispatcher) {
                 //==== if your useCase is a flow ====/
@@ -62,7 +62,7 @@ class DashboardViewModel(
             }
         } catch (e: Exception) {
             // handle errors
-            _state.value = DashboardState.Error(e)
+            _state.value = UsersState.Error(e)
         }
     }
 }

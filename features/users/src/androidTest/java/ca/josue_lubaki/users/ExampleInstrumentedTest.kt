@@ -1,4 +1,4 @@
-package ca.josue_lubaki.dashboard
+package ca.josue_lubaki.users
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

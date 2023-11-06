@@ -1,4 +1,4 @@
-package ca.josue_lubaki.dashboard.presentation
+package ca.josue_lubaki.users.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Text
@@ -20,13 +20,13 @@ import androidx.compose.ui.Alignment
 @Composable
 fun DashboardScreen(
     windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
-    viewModel: DashboardViewModel = koinViewModel(),
+    viewModel: UsersViewModel = koinViewModel(),
     onNavigateToRoute: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.onEvent(DashboardEvent.OnLoadData)
+        viewModel.onEvent(UsersEvent.OnLoadData)
     }
 
     Content(
@@ -37,7 +37,7 @@ fun DashboardScreen(
 
 @Composable
 private fun Content(
-    state: DashboardState,
+    state: UsersState,
     onNavigateToRoute: (String) -> Unit
 ) {
 
@@ -51,7 +51,7 @@ private fun Content(
 @Composable
 private fun DashboardPreview() {
     Content(
-        state = DashboardState.Idle,
+        state = UsersState.Idle,
         onNavigateToRoute = {}
     )
 }

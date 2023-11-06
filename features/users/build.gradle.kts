@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "ca.josue_lubaki.dashboard"
+    namespace = "ca.josue_lubaki.users"
     compileSdk = 34
 
     defaultConfig {

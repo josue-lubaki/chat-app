@@ -1,4 +1,4 @@
-package ca.josue_lubaki.dashboard
+package ca.josue_lubaki.users
 
 import org.junit.Test
 
