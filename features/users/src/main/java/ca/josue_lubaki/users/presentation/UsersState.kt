@@ -1,5 +1,7 @@
 package ca.josue_lubaki.users.presentation
 
+import ca.josue_lubaki.users.domain.model.User
+
 /**
  * created by Josue Lubaki
  * date : 2023-11-05
@@ -7,8 +9,8 @@ package ca.josue_lubaki.users.presentation
  */
 
 sealed class UsersState {
-    object Idle : UsersState()
-    object Loading : UsersState()
-//    data class Success(val data: Dashboard) : DashboardState()
+    data object Idle : UsersState()
+    data object Loading : UsersState()
+    data class Success(val data: List<User>) : UsersState()
     data class Error(val error: Exception) : UsersState()
 }

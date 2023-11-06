@@ -89,6 +89,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
+    // coil
+    implementation(libs.coil.compose)
+
     implementation(libs.window.size)
     implementation(libs.accompanist.adaptive)
 

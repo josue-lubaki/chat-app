@@ -45,11 +45,6 @@ class RegisterViewModel(
 
                             val databaseReference = firebaseDatabase.getReference("users")
 
-                            databaseReference
-                                .database
-                                .reference
-                                .child(userId)
-
                             val hashMap : HashMap<String, String> = HashMap()
                             hashMap["userId"] = userId
                             hashMap["username"] = username
@@ -57,6 +52,7 @@ class RegisterViewModel(
                             hashMap["profileImage"] = ""
 
                             databaseReference
+                                .child(userId)
                                 .setValue(hashMap)
                                 .addOnCompleteListener {
                                     if (it.isSuccessful){

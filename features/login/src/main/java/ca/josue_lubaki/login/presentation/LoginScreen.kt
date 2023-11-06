@@ -48,7 +48,7 @@ fun LoginScreen(
     LaunchedEffect(key1 = state){
         when (state) {
             is LoginState.Success -> {
-                onNavigateToRoute(ScreenTarget.Dashboard.route)
+                onNavigateToRoute(ScreenTarget.Users.route)
             }
             else -> Unit
         }

@@ -2,6 +2,13 @@ package ca.josue_lubaki.users.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.josue_lubaki.users.domain.model.User
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +22,9 @@ import kotlinx.coroutines.CoroutineDispatcher
  */
 
 class UsersViewModel(
-//    private val useCase: DashboardUseCase,
     private val dispatcher: CoroutineDispatcher,
+    private val firebaseAuth : FirebaseAuth,
+    private val firebaseDatabase : FirebaseDatabase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<UsersState>(UsersState.Idle)
@@ -24,7 +32,6 @@ class UsersViewModel(
 
     fun onEvent(event: UsersEvent) {
         when (event) {
-            //==== if you need execute actions ====//
             is UsersEvent.OnLoadData -> getAllData()
         }
     }
@@ -33,32 +40,25 @@ class UsersViewModel(
         _state.value = UsersState.Loading
         try {
             viewModelScope.launch(dispatcher) {
-                //==== if your useCase is a flow ====/
-                /*
-                    useCase().collect { response ->
-                        when (response) {
-                            is DashboardStatus.Success -> {
-                                _state.value = DashboardState.Success(response.data)
-                            }
+                val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
+                val databaseReference = firebaseDatabase.getReference("users")
 
-                            is DashboardStatus.Error -> {
-                                _state.value = DashboardState.Error(response.error)
+                databaseReference.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val users: MutableList<User> = ArrayList()
+                        for (dataSnapshot in snapshot.children) {
+                            val user : User? = dataSnapshot.getValue(User::class.java)
+                            if (user!!.userId != firebaseUser?.uid) {
+                                users.add(user)
                             }
                         }
+                        _state.value = UsersState.Success(users)
                     }
-                */
 
-                //==== if it's not a flow ====//
-                /*
-                    when (val response = useCase()) {
-                        is DashboardStatus.Success -> {
-                            _state.value = DashboardState.Success(response.data)
-                        }
-                        is DashboardStatus.Error -> {
-                            _state.value = DashboardState.Error(response.error)    
-                        }
+                    override fun onCancelled(error: DatabaseError) {
+                        _state.value = UsersState.Error(error.toException())
                     }
-                */
+                })
             }
         } catch (e: Exception) {
             // handle errors

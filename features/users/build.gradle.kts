@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    implementation(libs.material.icons.extended)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -72,6 +73,9 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
+
+    // coil
+    implementation(libs.coil.compose)
 
     // firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))

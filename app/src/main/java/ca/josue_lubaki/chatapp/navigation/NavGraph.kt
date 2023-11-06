@@ -34,7 +34,7 @@ fun NavGraph(
             windowSize = windowSize
         )
 
-        composable(ScreenTarget.Dashboard.route){
+        composable(ScreenTarget.Users.route){
             DashboardScreen(
                 onNavigateToRoute = { route : String ->
                     navController.navigate(route)
