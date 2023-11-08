@@ -1,12 +1,14 @@
 package ca.josue_lubaki.chatapp.navigation
 
+
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ca.josue_lubaki.common.navigation.ScreenTarget
-import ca.josue_lubaki.users.presentation.DashboardScreen
+import ca.josue_lubaki.profile.ProfileScreen
+import ca.josue_lubaki.users.presentation.ContactsScreen
 
 /**
  * created by Josue Lubaki
@@ -19,7 +21,6 @@ fun NavGraph(
     navController : NavHostController,
     windowSize : WindowWidthSizeClass,
 ){
-
     NavHost(
         navController = navController,
         route = Graph.ROOT,
@@ -29,16 +30,34 @@ fun NavGraph(
 //            SplashScreen(navController = navController)
 //        }
 
+        val onBackPressed = {
+            navController.popBackStack()
+        }
+
+        val onNavigateToProfile = {
+            navController.navigate(ScreenTarget.Profile.route)
+        }
+
         authNavigationGraph(
             navController = navController,
             windowSize = windowSize
         )
 
-        composable(ScreenTarget.Users.route){
-            DashboardScreen(
+        composable(ScreenTarget.Contact.route){
+            ContactsScreen(
                 onNavigateToRoute = { route : String ->
                     navController.navigate(route)
-                }
+                },
+                onNavigateToProfile = onNavigateToProfile
+            )
+        }
+
+        composable(ScreenTarget.Profile.route){
+            ProfileScreen(
+                onNavigateToRoute = { route : String ->
+                    navController.navigate(route)
+                },
+                onBackPressed = onBackPressed
             )
         }
 

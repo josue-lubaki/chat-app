@@ -2,6 +2,7 @@ package ca.josue_lubaki.chatapp
 
 import android.app.Application
 import ca.josue_lubaki.common.di.commonModules
+import ca.josue_lubaki.di.profileModules
 import ca.josue_lubaki.users.di.dashboardModules
 import ca.josue_lubaki.login.di.loginModules
 import ca.josue_lubaki.register.di.registerModules
@@ -24,7 +25,7 @@ class MyChatApp : Application() {
 
             // modules
             startKoin {
-                modules(commonModules + registerModules + loginModules + dashboardModules)
+                modules(commonModules + registerModules + loginModules + dashboardModules + profileModules)
             }
         }
 }

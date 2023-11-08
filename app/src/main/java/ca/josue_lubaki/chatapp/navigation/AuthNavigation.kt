@@ -2,6 +2,7 @@ package ca.josue_lubaki.chatapp.navigation
 
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -22,7 +23,7 @@ fun NavGraphBuilder.authNavigationGraph(
 
     navigation(
         route = Graph.AUTH,
-        startDestination = ScreenTarget.Register.route
+        startDestination = ScreenTarget.Login.route
     ){
 
         val onNavigateToRoute = { route : String ->

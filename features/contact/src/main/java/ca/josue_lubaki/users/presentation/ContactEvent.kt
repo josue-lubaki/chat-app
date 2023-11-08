@@ -6,6 +6,6 @@ package ca.josue_lubaki.users.presentation
  * version : 1.0.0
  */
 
-sealed class UsersEvent {
-    object OnLoadData : UsersEvent()
+sealed class ContactEvent {
+    object OnLoadData : ContactEvent()
 }

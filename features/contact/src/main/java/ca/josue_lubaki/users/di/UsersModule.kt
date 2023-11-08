@@ -1,6 +1,6 @@
 package ca.josue_lubaki.users.di
 
-import ca.josue_lubaki.users.presentation.UsersViewModel
+import ca.josue_lubaki.users.presentation.ContactViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -11,7 +11,7 @@ import org.koin.dsl.module
  */
 
 internal val domainModule = module {
-    viewModel<UsersViewModel> { UsersViewModel(get(), get(), get()) }
+    viewModel<ContactViewModel> { ContactViewModel(get(), get(), get()) }
 }
 
 val dashboardModules = listOf(domainModule)
