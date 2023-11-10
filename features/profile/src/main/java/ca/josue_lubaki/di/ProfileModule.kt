@@ -11,7 +11,7 @@ import org.koin.dsl.module
  */
 
 internal val domainModule = module {
-    viewModel<ProfileViewModel> { ProfileViewModel(get(), get(), get()) }
+    viewModel<ProfileViewModel> { ProfileViewModel(get(), get(), get(), get()) }
 }
 
 val profileModules = listOf(domainModule)

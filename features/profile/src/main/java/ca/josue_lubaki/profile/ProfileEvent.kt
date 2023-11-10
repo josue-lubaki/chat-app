@@ -1,5 +1,8 @@
 package ca.josue_lubaki.profile
 
+import android.graphics.Bitmap
+import android.net.Uri
+
 /**
  * created by Josue Lubaki
  * date : 2023-11-08
@@ -7,5 +10,7 @@ package ca.josue_lubaki.profile
  */
 
 sealed class ProfileEvent {
-    object OnLoadData : ProfileEvent()
+    data class OnUploadImage(val uri: Uri) : ProfileEvent()
+
+    data object OnLoadData : ProfileEvent()
 }

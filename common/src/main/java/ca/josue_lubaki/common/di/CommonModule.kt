@@ -2,6 +2,7 @@ package ca.josue_lubaki.common.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import org.koin.dsl.module
@@ -15,6 +16,7 @@ import org.koin.dsl.module
 val firebaseModule = module {
     single<FirebaseAuth> { FirebaseAuth.getInstance() }
     single<FirebaseDatabase> { FirebaseDatabase.getInstance() }
+    single<FirebaseStorage> { FirebaseStorage.getInstance() }
 }
 
 val utilityModule = module {

@@ -1,5 +1,6 @@
 package ca.josue_lubaki.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.josue_lubaki.common.domain.model.User
@@ -9,6 +10,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +27,7 @@ class ProfileViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuth: FirebaseAuth,
     private val firebaseDatabase: FirebaseDatabase,
+    private val firebaseStorage: FirebaseStorage
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ProfileState>(ProfileState.Idle)
@@ -33,6 +36,28 @@ class ProfileViewModel(
     fun onEvent(event: ProfileEvent) {
         when (event) {
             is ProfileEvent.OnLoadData -> event.reduce()
+            is ProfileEvent.OnUploadImage -> event.reduce()
+        }
+    }
+
+    private fun ProfileEvent.OnUploadImage.reduce() {
+        try {
+            viewModelScope.launch(dispatcher) {
+                val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
+                val databaseReference = firebaseDatabase.getReference("users").child(firebaseUser?.uid!!)
+                val firebaseStorageReference = firebaseStorage.reference.child("users").child("image/${firebaseUser.uid}")
+
+                firebaseStorageReference.putFile(uri)
+                    .addOnSuccessListener {
+                        firebaseStorageReference.downloadUrl.addOnSuccessListener {
+                            databaseReference.child("profileImage").setValue(it.toString())
+                        }.addOnFailureListener {
+                            _state.value = ProfileState.Error(it)
+                        }
+                    }
+            }
+        } catch (e: Exception) {
+            _state.value = ProfileState.Error(e)
         }
     }
 

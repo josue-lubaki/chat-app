@@ -1,8 +1,17 @@
 package ca.josue_lubaki.profile
 
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,16 +38,23 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ca.josue_lubaki.common.domain.model.User
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import java.io.IOException
 
 /**
  * created by Josue Lubaki
@@ -54,10 +69,36 @@ fun ProfileScreen(
     onNavigateToRoute: (String) -> Unit,
     onBackPressed: () -> Boolean
 ) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val imageUser = remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(ProfileEvent.OnLoadData)
+    }
+
+    // Registers a photo picker activity launcher in single-select mode.
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        // Callback is invoked after the user selects a media item or closes the
+        // photo picker.
+        if(uri == null) {
+            Log.d("PhotoPicker", "No media selected")
+            return@rememberLauncherForActivityResult
+        }
+
+        try {
+            imageUser.value = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            viewModel.onEvent(ProfileEvent.OnUploadImage(uri))
+        }
+        catch (e: IOException) {
+            Log.d("PhotoPicker", "Error: $e")
+        }
+    }
+
+    val uploadImageRequest = {
+        pickMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     Scaffold(
@@ -70,7 +111,9 @@ fun ProfileScreen(
         Content(
             state = state,
             onNavigateToRoute = onNavigateToRoute,
-            paddingValue = it
+            paddingValue = it,
+            imageUser = imageUser.value,
+            chooseImage = uploadImageRequest,
         )
     }
 }
@@ -109,7 +152,9 @@ fun TopBar(onBackPressed: () -> Boolean) {
 private fun Content(
     state: ProfileState,
     onNavigateToRoute: (String) -> Unit,
-    paddingValue : PaddingValues
+    paddingValue : PaddingValues,
+    imageUser : Bitmap?,
+    chooseImage : () -> Unit,
 ) {
 
     Box(
@@ -126,7 +171,11 @@ private fun Content(
                             .padding(top = 16.dp),
                         contentAlignment = Alignment.Center
                     ){
-                        ContentSuccess(state)
+                        ContentSuccess(
+                            state = state,
+                            imageUser = imageUser,
+                            chooseImage = chooseImage,
+                        )
                     }
                 }
                 is ProfileState.Error -> {
@@ -150,14 +199,26 @@ private fun Content(
 }
 
 @Composable
-fun ContentSuccess(state: ProfileState) {
+fun ContentSuccess(
+    state: ProfileState,
+    imageUser : Bitmap?,
+    chooseImage : () -> Unit,
+) {
     with(state as ProfileState.Success){
-        ProfileContent(user = data)
+        ProfileContent(
+            user = data,
+            imageUser = imageUser,
+            chooseImage = chooseImage
+        )
     }
 }
 
 @Composable
-fun ProfileContent(user: User?) {
+fun ProfileContent(
+    user: User?,
+    imageUser : Bitmap?,
+    chooseImage : () -> Unit
+) {
    Column(
        modifier = Modifier.fillMaxSize(),
        verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -175,13 +236,30 @@ fun ProfileContent(user: User?) {
        else {
            val (_, _, profileImage) = user
            if (profileImage.isBlank()) {
-               Image(
-                   imageVector = Icons.Filled.Person,
-                   contentDescription = "User Image",
-                   modifier = Modifier
-                       .size(96.dp)
-                       .clip(shape = CircleShape)
-               )
+               if(imageUser != null){
+                   Image(
+                       bitmap = imageUser.asImageBitmap(),
+                       contentDescription = "User Image",
+                       modifier = Modifier
+                           .size(96.dp)
+                           .clip(shape = CircleShape)
+                           .clickable {
+                               chooseImage()
+                           }
+                   )
+               }
+               else{
+                   Image(
+                       imageVector = Icons.Filled.Person,
+                       contentDescription = "User Image",
+                       modifier = Modifier
+                           .size(96.dp)
+                           .clip(shape = CircleShape)
+                           .clickable {
+                               chooseImage()
+                           }
+                   )
+               }
            } else {
                SubcomposeAsyncImage(
                    model = ImageRequest.Builder(LocalContext.current)
@@ -194,7 +272,11 @@ fun ProfileContent(user: User?) {
                    contentDescription = "User Image",
                    modifier = Modifier
                        .size(96.dp)
-                       .clip(shape = CircleShape),
+                       .clip(shape = CircleShape)
+                       .clickable {
+                           chooseImage()
+                       }
+                   ,
                    contentScale = ContentScale.Crop
                )
            }
@@ -219,6 +301,8 @@ private fun ProfilePreview() {
             )
         ),
         onNavigateToRoute = {},
-        paddingValue = PaddingValues()
+        paddingValue = PaddingValues(),
+        chooseImage = {},
+        imageUser = null,
     )
 }

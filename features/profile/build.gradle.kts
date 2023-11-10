@@ -48,7 +48,7 @@ android {
 
 dependencies {
     implementation(projects.common)
-
+    implementation(libs.activity.compose)
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(platform(libs.compose.bom))
@@ -82,4 +82,5 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-storage")
 }
