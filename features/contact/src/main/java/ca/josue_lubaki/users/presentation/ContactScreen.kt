@@ -53,6 +53,7 @@ fun ContactsScreen(
     viewModel: ContactViewModel = koinViewModel(),
     onNavigateToRoute: (String) -> Unit,
     onNavigateToProfile : () -> Unit,
+    onNavigateToChat : (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -71,7 +72,8 @@ fun ContactsScreen(
         Content(
             state = state,
             onNavigateToRoute = onNavigateToRoute,
-            paddingValues = it
+            paddingValues = it,
+            onNavigateToChat = onNavigateToChat
         )
     }
 }
@@ -86,10 +88,12 @@ fun TopBar(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .size(64.dp)
             .background(color = MaterialTheme.colorScheme.primary)
             .padding(end = 8.dp)
             .padding(vertical = 8.dp)
     ) {
+
         Text(
             text = "Contacts",
             modifier = Modifier
@@ -151,7 +155,8 @@ fun ProfileImage(
 private fun Content(
     state: ContactState,
     onNavigateToRoute: (String) -> Unit,
-    paddingValues : PaddingValues
+    paddingValues : PaddingValues,
+    onNavigateToChat : (String) -> Unit
 ) {
 
     Box(
@@ -172,6 +177,7 @@ private fun Content(
                             UserItem(
                                 username = user.username,
                                 profileImage = user.profileImage,
+                                onClick = { onNavigateToChat(user.userId) }
                             )
                         }
                     }
@@ -210,6 +216,7 @@ private fun UsersPreview() {
             )
         ),
         onNavigateToRoute = {},
-        paddingValues = PaddingValues()
+        paddingValues = PaddingValues(),
+        onNavigateToChat = {}
     )
 }

@@ -81,8 +81,7 @@ fun ProfileScreen(
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        // Callback is invoked after the user selects a media item or closes the
-        // photo picker.
+        // Callback is invoked after the user selects a media item or closes the photo picker.
         if(uri == null) {
             Log.d("PhotoPicker", "No media selected")
             return@rememberLauncherForActivityResult
