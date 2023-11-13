@@ -57,7 +57,6 @@ fun NavGraph(
 
         composable(ScreenTarget.Contact.route){
             ContactsScreen(
-                onNavigateToRoute = onNavigateToRoute,
                 onNavigateToProfile = onNavigateToProfile,
                 onNavigateToChat = onNavigateToChat
             )
@@ -83,7 +82,6 @@ fun NavGraph(
             ChatScreen(
                 userId = userId,
                 windowSize = windowSize,
-                onNavigateToRoute = onNavigateToRoute,
                 onNavigateToProfile = onNavigateToProfile,
                 onBackPressed = onBackPressed
             )

@@ -51,7 +51,6 @@ import coil.request.ImageRequest
 fun ContactsScreen(
     windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
     viewModel: ContactViewModel = koinViewModel(),
-    onNavigateToRoute: (String) -> Unit,
     onNavigateToProfile : () -> Unit,
     onNavigateToChat : (String) -> Unit
 ) {
@@ -71,7 +70,6 @@ fun ContactsScreen(
     ) {
         Content(
             state = state,
-            onNavigateToRoute = onNavigateToRoute,
             paddingValues = it,
             onNavigateToChat = onNavigateToChat
         )
@@ -154,7 +152,6 @@ fun ProfileImage(
 @Composable
 private fun Content(
     state: ContactState,
-    onNavigateToRoute: (String) -> Unit,
     paddingValues : PaddingValues,
     onNavigateToChat : (String) -> Unit
 ) {
@@ -173,10 +170,14 @@ private fun Content(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(targetState.data) { user ->
+                        items(
+                            items = targetState.data,
+                            key = { user -> user.userId }
+                        ) { user ->
                             UserItem(
                                 username = user.username,
                                 profileImage = user.profileImage,
+                                message = targetState.lastMessages[user.userId] ?: "",
                                 onClick = { onNavigateToChat(user.userId) }
                             )
                         }
@@ -215,7 +216,6 @@ private fun UsersPreview() {
                 )
             )
         ),
-        onNavigateToRoute = {},
         paddingValues = PaddingValues(),
         onNavigateToChat = {}
     )

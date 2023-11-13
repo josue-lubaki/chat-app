@@ -1,9 +1,9 @@
 package ca.josue_lubaki.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.josue_lubaki.common.domain.model.User
+import ca.josue_lubaki.common.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -44,8 +44,8 @@ class ProfileViewModel(
         try {
             viewModelScope.launch(dispatcher) {
                 val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val databaseReference = firebaseDatabase.getReference("users").child(firebaseUser?.uid!!)
-                val firebaseStorageReference = firebaseStorage.reference.child("users").child("image/${firebaseUser.uid}")
+                val databaseReference = firebaseDatabase.getReference(Constants.REF_USERS).child(firebaseUser?.uid!!)
+                val firebaseStorageReference = firebaseStorage.reference.child(Constants.REF_USERS).child("image/${firebaseUser.uid}")
 
                 firebaseStorageReference.putFile(uri)
                     .addOnSuccessListener {
@@ -66,7 +66,7 @@ class ProfileViewModel(
         try {
             viewModelScope.launch(dispatcher) {
                 val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val databaseReference = firebaseDatabase.getReference("users").child(firebaseUser?.uid!!)
+                val databaseReference = firebaseDatabase.getReference(Constants.REF_USERS).child(firebaseUser?.uid!!)
 
                 databaseReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {

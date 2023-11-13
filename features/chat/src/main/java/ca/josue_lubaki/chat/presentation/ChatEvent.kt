@@ -1,7 +1,5 @@
 package ca.josue_lubaki.chat.presentation
 
-import ca.josue_lubaki.chat.domain.Message
-
 /**
  * created by Josue Lubaki
  * date : 2023-11-11
@@ -9,7 +7,7 @@ import ca.josue_lubaki.chat.domain.Message
  */
 
 sealed class ChatEvent {
-    data object OnLoadData : ChatEvent()
+    data class OnLoadData(val userId : String) : ChatEvent()
     data class OnSendMessage(
         val receiverId : String,
         val message : String

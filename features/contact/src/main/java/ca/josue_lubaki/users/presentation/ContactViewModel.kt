@@ -2,7 +2,9 @@ package ca.josue_lubaki.users.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.josue_lubaki.common.domain.model.Message
 import ca.josue_lubaki.common.domain.model.User
+import ca.josue_lubaki.common.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -32,30 +34,62 @@ class ContactViewModel(
 
     fun onEvent(event: ContactEvent) {
         when (event) {
-            is ContactEvent.OnLoadData -> getAllData()
+            is ContactEvent.OnLoadData -> getAllContacts()
         }
     }
 
-    private fun getAllData() {
+    private fun getAllContacts() {
         _state.value = ContactState.Loading
+
         try {
             viewModelScope.launch(dispatcher) {
                 val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val databaseReference = firebaseDatabase.getReference("users")
+                val usersReference = firebaseDatabase.getReference(Constants.REF_USERS)
+                val messagesReference = firebaseDatabase.getReference(Constants.REF_MESSAGES)
 
-                databaseReference.addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
+                val lastMessages: HashMap<String, String> = hashMapOf()
+
+                usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(usersSnapshot: DataSnapshot) {
                         val users: MutableList<User> = ArrayList()
-                        var me : User? = null
-                        for (dataSnapshot in snapshot.children) {
-                            val user : User? = dataSnapshot.getValue(User::class.java)
+                        var me: User? = null
+
+                        for (userSnapshot in usersSnapshot.children) {
+                            val user: User? = userSnapshot.getValue(User::class.java)
+
                             if (user!!.userId != firebaseUser?.uid) users.add(user)
                             else me = user
                         }
-                        _state.value = ContactState.Success(
-                            data = users,
-                            me = me
-                        )
+
+                        messagesReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(messagesSnapshot: DataSnapshot) {
+                                for (messageSnapshot in messagesSnapshot.children) {
+                                    val message = messageSnapshot.getValue(Message::class.java) ?: continue
+
+                                    for (userSnapshot in usersSnapshot.children) {
+                                        val user: User? = userSnapshot.getValue(User::class.java)
+                                        if(message.senderId == firebaseUser?.uid && message.receiverId == user?.userId ||
+                                            message.senderId == user?.userId && message.receiverId == firebaseUser?.uid){
+                                            if (message.senderId == firebaseUser.uid) {
+                                                lastMessages[message.receiverId] = message.message
+                                            } else {
+                                                lastMessages[message.senderId] = message.message
+                                            }
+                                        }
+                                    }
+                                }
+
+                                _state.value = ContactState.Success(
+                                    data = users,
+                                    me = me,
+                                    lastMessages = lastMessages
+                                )
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                _state.value = ContactState.Error(error.toException())
+                            }
+                        })
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -64,7 +98,6 @@ class ContactViewModel(
                 })
             }
         } catch (e: Exception) {
-            // handle errors
             _state.value = ContactState.Error(e)
         }
     }

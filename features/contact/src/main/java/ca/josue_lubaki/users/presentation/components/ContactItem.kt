@@ -40,6 +40,7 @@ import coil.request.ImageRequest
 fun UserItem(
     username : String,
     profileImage : String?,
+    message : String = "",
     onClick : () -> Unit = {}
 ) {
     Row(
@@ -92,7 +93,7 @@ fun UserItem(
                 )
             ) {
                 Text(
-                    text = "Dummy"
+                    text = message
                 )
             }
         }

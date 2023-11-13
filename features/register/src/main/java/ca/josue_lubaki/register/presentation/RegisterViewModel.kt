@@ -2,6 +2,7 @@ package ca.josue_lubaki.register.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.josue_lubaki.common.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineDispatcher
@@ -43,7 +44,7 @@ class RegisterViewModel(
                             val user = firebaseAuth.currentUser
                             val userId = user!!.uid
 
-                            val databaseReference = firebaseDatabase.getReference("users")
+                            val databaseReference = firebaseDatabase.getReference(Constants.REF_USERS)
 
                             val hashMap : HashMap<String, String> = HashMap()
                             hashMap["userId"] = userId

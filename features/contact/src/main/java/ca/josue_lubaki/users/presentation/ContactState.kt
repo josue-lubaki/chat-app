@@ -13,7 +13,8 @@ sealed class ContactState {
     data object Loading : ContactState()
     data class Success(
         val data: List<User>,
-        val me : User? = null
+        val me : User? = null,
+        val lastMessages : HashMap<String, String> = hashMapOf()
     ) : ContactState()
     data class Error(val error: Exception) : ContactState()
 }
