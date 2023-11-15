@@ -1,8 +1,13 @@
 package ca.josue_lubaki.chat.presentation
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.josue_lubaki.common.data.api.NotificationApi
 import ca.josue_lubaki.common.domain.model.Message
+import ca.josue_lubaki.common.domain.model.NotificationData
+import ca.josue_lubaki.common.domain.model.PushNotification
 import ca.josue_lubaki.common.domain.model.User
 import ca.josue_lubaki.common.utils.Constants.REF_MESSAGES
 import ca.josue_lubaki.common.utils.Constants.REF_USERS
@@ -27,8 +32,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 class ChatViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuth : FirebaseAuth,
-    private val firebaseDatabase : FirebaseDatabase
+    private val firebaseDatabase : FirebaseDatabase,
+    private val notificationApi: NotificationApi
 ) : ViewModel() {
+
+    private val topic = mutableStateOf<String?>(null)
+    private val user = mutableStateOf<User?>(null)
 
     private val _state = MutableStateFlow<ChatState>(ChatState.Idle)
     val state: StateFlow<ChatState> = _state.asStateFlow()
@@ -38,6 +47,7 @@ class ChatViewModel(
             //==== if you need execute actions ====//
             is ChatEvent.OnLoadData -> event.reduce()
             is ChatEvent.OnSendMessage -> event.reduce()
+            is ChatEvent.OnSendNotification -> event.reduce()
         }
     }
 
@@ -46,21 +56,50 @@ class ChatViewModel(
         try {
             viewModelScope.launch(dispatcher) {
                 val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val databaseReference = firebaseDatabase.getReference().child(REF_MESSAGES)
+                val messagesReference = firebaseDatabase.getReference().child(REF_MESSAGES)
 
                 val hashMap: HashMap<String, String> = HashMap()
-                val messageId = databaseReference.push().key
+                val messageId = messagesReference.push().key
                 hashMap["messageId"] = messageId!!
                 hashMap["senderId"] = firebaseUser?.uid!!
                 hashMap["receiverId"] = receiverId
                 hashMap["message"] = message
 
-                databaseReference.push().setValue(hashMap)
+                messagesReference.push().setValue(hashMap)
 
+                // set topic for notification
+                topic.value = "/topics/$receiverId"
+
+                // send notification
+                ChatEvent.OnSendNotification(
+                    PushNotification(
+                        data = NotificationData(
+                            title = user.value?.username ?: firebaseUser.uid,
+                            message = message
+                        ),
+                        to = topic.value!!
+                    )
+                ).reduce()
             }
         } catch (e: Exception) {
             // handle errors
             _state.value = ChatState.Error(e)
+        }
+    }
+
+    private fun ChatEvent.OnSendNotification.reduce() {
+        viewModelScope.launch(dispatcher){
+            try {
+                val response = notificationApi.postNotification(notification)
+                if (response.isSuccessful) {
+                    // show snackbar
+                } else {
+                    Log.d("xxxx", "Response ${response.errorBody().toString()}")
+                }
+            } catch (e: Exception) {
+                // handle errors
+                Log.d("xxxx", "Response ${e.message}")
+            }
         }
     }
 
@@ -69,13 +108,12 @@ class ChatViewModel(
         try {
             viewModelScope.launch(dispatcher) {
                 val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val databaseReferenceUsers = firebaseDatabase.getReference(REF_USERS).child(firebaseUser?.uid!!)
-                val databaseReferenceMessage = firebaseDatabase.getReference(REF_MESSAGES)
-                var user : User? = null
+                val userReference = firebaseDatabase.getReference(REF_USERS).child(firebaseUser?.uid!!)
+                val messagesReference = firebaseDatabase.getReference(REF_MESSAGES)
 
-                databaseReferenceUsers.addValueEventListener(object : ValueEventListener {
+                userReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        user = snapshot.getValue(User::class.java)
+                        user.value = snapshot.getValue(User::class.java)
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -83,7 +121,7 @@ class ChatViewModel(
                     }
                 })
 
-                databaseReferenceMessage.addValueEventListener(object : ValueEventListener {
+                messagesReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val messages: MutableList<Message> = ArrayList()
                         for (dataSnapshot in snapshot.children) {
@@ -98,7 +136,7 @@ class ChatViewModel(
                         }
                         _state.value = ChatState.Success(
                             data = messages,
-                            me = user
+                            me = user.value,
                         )
                     }
 

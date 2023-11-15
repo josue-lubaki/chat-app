@@ -83,8 +83,7 @@ fun ChatScreen(
         ))
     }
 
-    LaunchedEffect(key1 = Unit, key2 = onSendMessage) {
-        Log.d("xxxx", "ChatScreen: $userId")
+    LaunchedEffect(key1 = Unit) {
         viewModel.onEvent(ChatEvent.OnLoadData(userId = userId))
     }
 

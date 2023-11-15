@@ -6,4 +6,8 @@ object Constants {
     // Firebase References
     const val REF_USERS = "users"
     const val REF_MESSAGES = "messages"
+
+    const val CONTENT_TYPE = "application/json"
+
+    const val NETWORK_TIME_OUT = 30L
 }

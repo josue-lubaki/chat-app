@@ -1,7 +1,49 @@
+import com.android.build.api.variant.BuildConfigField
+import java.util.Properties
+
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+}
+
+androidComponents {
+    val properties = Properties()
+    val localFile = project.rootProject.file("local.properties")
+    if(localFile.exists()){
+        localFile.inputStream().use { properties.load(it) }
+    }
+
+    val firebaseURL = System.getenv("FIREBASE_URL") ?: properties.getProperty("FIREBASE_URL")
+    val firebaseApiKey = System.getenv("FIREBASE_API_KEY") ?: properties.getProperty("FIREBASE_API_KEY")
+
+    onVariants(selector().withBuildType("debug")) {
+        it.buildConfigFields.put("FIREBASE_URL", BuildConfigField(
+            type = "String",
+            value = "\"$firebaseURL\"",
+            comment = "FCM URL"
+        ))
+
+        it.buildConfigFields.put("FIREBASE_API_KEY", BuildConfigField(
+            type = "String",
+            value = "\"$firebaseApiKey\"",
+            comment = "FCM URL"
+        ))
+    }
+
+    onVariants(selector().withBuildType("release")) {
+        it.buildConfigFields.put("FIREBASE_URL", BuildConfigField(
+            type = "String",
+            value = "\"$firebaseURL\"",
+            comment = "FCM URL"
+        ))
+
+        it.buildConfigFields.put("FIREBASE_API_KEY", BuildConfigField(
+            type = "String",
+            value = "\"$firebaseApiKey\"",
+            comment = "FCM URL"
+        ))
+    }
 }
 
 android {
@@ -40,6 +82,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.0"
@@ -59,6 +102,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation(libs.accompanist.permissions)
+
     // navigation compose
     implementation(libs.androidx.navigation.compose)
 
@@ -75,6 +120,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
 
+    // coroutines
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
+
+    // retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
+
     // firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     implementation(libs.firebase.core)
@@ -82,4 +136,5 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-messaging")
 }

@@ -60,6 +60,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation(libs.accompanist.permissions)
+
     // navigation compose
     implementation(libs.androidx.navigation.compose)
 
@@ -75,6 +77,11 @@ dependencies {
 
     // coil
     implementation(libs.coil.compose)
+
+    // retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
 
     // firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))

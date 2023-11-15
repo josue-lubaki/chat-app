@@ -24,15 +24,13 @@ import ca.josue_lubaki.users.presentation.ContactsScreen
 fun NavGraph(
     navController : NavHostController,
     windowSize : WindowWidthSizeClass,
+    route : String? = null
 ){
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = Graph.AUTH
+        startDestination = if(route.isNullOrEmpty()) Graph.AUTH else route
     ){
-//        composable(ScreenTarget.Splash.route){
-//            SplashScreen(navController = navController)
-//        }
 
         val onNavigateToRoute = { route : String ->
             navController.navigate(route)

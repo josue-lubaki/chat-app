@@ -1,5 +1,8 @@
 package ca.josue_lubaki.users.presentation
 
+import android.Manifest
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,28 +21,37 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ca.josue_lubaki.common.domain.model.User
 import ca.josue_lubaki.users.presentation.components.UserItem
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * created by Josue Lubaki
@@ -47,6 +59,8 @@ import coil.request.ImageRequest
  * version : 1.0.0
  */
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun ContactsScreen(
     windowSize: WindowWidthSizeClass = WindowWidthSizeClass.Compact,
@@ -56,8 +70,52 @@ fun ContactsScreen(
 ) {
     val state by viewModel.state.collectAsState()
 
+    val showNotificationDialog = remember { mutableStateOf(false) }
+    val notificationPermissionState = rememberPermissionState(
+        permission = Manifest.permission.POST_NOTIFICATIONS
+    )
+
+    if (showNotificationDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                showNotificationDialog.value = false
+                notificationPermissionState.launchPermissionRequest()
+            },
+            title = { Text("Permission Request") },
+            text = { Text("We need notification permission to send you notification") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showNotificationDialog.value = false
+                        notificationPermissionState.launchPermissionRequest()
+                    }
+                ) {
+                    Text("Ok")
+                }
+            }
+        )
+    }
+
     LaunchedEffect(Unit) {
         viewModel.onEvent(ContactEvent.OnLoadData)
+
+        // Request notification permission if not granted
+        if (!notificationPermissionState.status.isGranted) {
+            showNotificationDialog.value = true
+        }
+    }
+
+    LaunchedEffect(key1 = state){
+        when (val currentState = state) {
+            is ContactState.Success -> {
+                if(notificationPermissionState.status.isGranted || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                    val firebaseUid = currentState.me?.userId
+                    Firebase.messaging.subscribeToTopic("/topics/$firebaseUid")
+                }
+                else showNotificationDialog.value = true
+            }
+            else -> Unit
+        }
     }
 
     Scaffold(

@@ -11,7 +11,7 @@ import org.koin.dsl.module
  */
 
 internal val domainModule = module {
-    viewModel<ContactViewModel> { ContactViewModel(get(), get(), get()) }
+    viewModel<ContactViewModel> { ContactViewModel(get(), get(), get(), get()) }
 }
 
 val dashboardModules = listOf(domainModule)

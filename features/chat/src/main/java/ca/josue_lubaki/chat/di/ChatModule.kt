@@ -11,7 +11,7 @@ import org.koin.dsl.module
  */
 
 internal val domainModule = module {
-    viewModel<ChatViewModel> { ChatViewModel(get(), get(), get()) }
+    viewModel<ChatViewModel> { ChatViewModel(get(), get(), get(), get()) }
 }
 
 val chatModules = listOf(domainModule)

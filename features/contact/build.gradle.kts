@@ -70,6 +70,7 @@ dependencies {
 
     implementation(libs.window.size)
     implementation(libs.accompanist.adaptive)
+    implementation(libs.accompanist.permissions)
 
     debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
@@ -77,10 +78,16 @@ dependencies {
     // coil
     implementation(libs.coil.compose)
 
+    // retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
+
     // firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:32.4.0"))
     implementation(libs.firebase.core)
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging")
 }

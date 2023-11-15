@@ -1,9 +1,12 @@
 package ca.josue_lubaki.users.presentation
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.josue_lubaki.common.domain.model.Message
 import ca.josue_lubaki.common.domain.model.User
+//import ca.josue_lubaki.chatapp.service.FirebaseService
 import ca.josue_lubaki.common.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -11,6 +14,12 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.iid.FirebaseInstanceIdReceiver
+import com.google.firebase.installations.FirebaseInstallations
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,11 +35,20 @@ import kotlinx.coroutines.launch
 class ContactViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuth : FirebaseAuth,
-    private val firebaseDatabase : FirebaseDatabase
+    private val firebaseDatabase : FirebaseDatabase,
+    private val firebaseMessaging : FirebaseMessaging
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ContactState>(ContactState.Idle)
     val state: StateFlow<ContactState> = _state.asStateFlow()
+
+//    init {
+//        viewModelScope.launch {
+//            FirebaseInstallations.getInstance().getToken(true).addOnSuccessListener {
+//                FirebaseService.token = it.token
+//            }
+//        }
+//    }
 
     fun onEvent(event: ContactEvent) {
         when (event) {
@@ -47,6 +65,8 @@ class ContactViewModel(
                 val usersReference = firebaseDatabase.getReference(Constants.REF_USERS)
                 val messagesReference = firebaseDatabase.getReference(Constants.REF_MESSAGES)
 
+                firebaseMessaging.subscribeToTopic("/topics/${firebaseUser?.uid}")
+
                 val lastMessages: HashMap<String, String> = hashMapOf()
 
                 usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -57,8 +77,13 @@ class ContactViewModel(
                         for (userSnapshot in usersSnapshot.children) {
                             val user: User? = userSnapshot.getValue(User::class.java)
 
-                            if (user!!.userId != firebaseUser?.uid) users.add(user)
-                            else me = user
+                            if (user!!.userId != firebaseUser?.uid) {
+                                users.add(user)
+                            }
+                            else {
+                                Firebase.messaging.subscribeToTopic("/topics/${user.userId}")
+                                me = user
+                            }
                         }
 
                         messagesReference.addListenerForSingleValueEvent(object : ValueEventListener {
