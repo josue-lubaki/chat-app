@@ -1,11 +1,12 @@
 package ca.josue_lubaki.chatapp
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,14 +21,26 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
 
-            // get "route" into Bundle
-            val route = intent.getStringExtra("route")
-            Log.d("xxxx", "route on MainActivity : $route")
+            FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    return@OnCompleteListener
+                }
+
+                // Get new FCM registration token
+                val token = task.result
+
+                // TODO : Save token in sharedPref
+            })
+
+            // get "senderId" into Bundle when user receive a notification
+            val senderId = intent.getStringExtra("senderId")
 
             val navController = rememberNavController()
             val windowSize = calculateWindowSizeClass(activity = this)
@@ -44,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     NavGraph(
                         navController = navController,
                         windowSize = windowSize.widthSizeClass,
-                        route = route
+                        senderId = senderId
                     )
                 }
             }

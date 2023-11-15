@@ -1,14 +1,18 @@
 package ca.josue_lubaki.chatapp.navigation
 
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import ca.josue_lubaki.chat.presentation.ChatScreen
+import ca.josue_lubaki.chatapp.MainActivity
 import ca.josue_lubaki.common.navigation.ScreenTarget
 import ca.josue_lubaki.common.utils.Constants.ARGS_USER_ID_KEY
 import ca.josue_lubaki.profile.ProfileScreen
@@ -20,16 +24,24 @@ import ca.josue_lubaki.users.presentation.ContactsScreen
  * version : 1.0.0
  */
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NavGraph(
     navController : NavHostController,
     windowSize : WindowWidthSizeClass,
-    route : String? = null
+    senderId : String? = null
 ){
+
+    LaunchedEffect(key1 = senderId){
+        if(!senderId.isNullOrEmpty()){
+            navController.navigate(ScreenTarget.Chat.routeWithArgs(senderId))
+        }
+    }
+
     NavHost(
         navController = navController,
         route = Graph.ROOT,
-        startDestination = if(route.isNullOrEmpty()) Graph.AUTH else route
+        startDestination = Graph.AUTH
     ){
 
         val onNavigateToRoute = { route : String ->
@@ -81,9 +93,14 @@ fun NavGraph(
                 userId = userId,
                 windowSize = windowSize,
                 onNavigateToProfile = onNavigateToProfile,
-                onBackPressed = onBackPressed
+                onBackPressed = {
+                    if (senderId.isNullOrEmpty()) onBackPressed()
+                    else {
+                        onNavigateToRoute(ScreenTarget.Contact.route)
+                        true
+                    }
+                }
             )
         }
-
     }
 }

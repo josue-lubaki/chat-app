@@ -46,8 +46,6 @@ class FirebaseService : FirebaseMessagingService() {
         FirebaseInstallations.getInstance().getToken(true).addOnSuccessListener {
             sharedPref?.edit()?.putString("token", it.token)?.apply()
         }
-
-        Log.d("xxxx", "onNewToken : $p0")
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
@@ -61,7 +59,8 @@ class FirebaseService : FirebaseMessagingService() {
         }
 
         val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("route", ScreenTarget.Contact.route)
+        val senderId = message.data["senderId"]!!
+        intent.putExtra("senderId", senderId)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)

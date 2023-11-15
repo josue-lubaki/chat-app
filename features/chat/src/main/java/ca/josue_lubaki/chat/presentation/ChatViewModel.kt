@@ -11,6 +11,7 @@ import ca.josue_lubaki.common.domain.model.PushNotification
 import ca.josue_lubaki.common.domain.model.User
 import ca.josue_lubaki.common.utils.Constants.REF_MESSAGES
 import ca.josue_lubaki.common.utils.Constants.REF_USERS
+import ca.josue_lubaki.common.utils.Constants.TOPICS
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -55,27 +56,28 @@ class ChatViewModel(
         _state.value = ChatState.Loading
         try {
             viewModelScope.launch(dispatcher) {
-                val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
+                val currentUser: FirebaseUser? = firebaseAuth.currentUser
                 val messagesReference = firebaseDatabase.getReference().child(REF_MESSAGES)
 
                 val hashMap: HashMap<String, String> = HashMap()
                 val messageId = messagesReference.push().key
                 hashMap["messageId"] = messageId!!
-                hashMap["senderId"] = firebaseUser?.uid!!
+                hashMap["senderId"] = currentUser?.uid!!
                 hashMap["receiverId"] = receiverId
                 hashMap["message"] = message
 
                 messagesReference.push().setValue(hashMap)
 
                 // set topic for notification
-                topic.value = "/topics/$receiverId"
+                topic.value = "$TOPICS/$receiverId"
 
                 // send notification
                 ChatEvent.OnSendNotification(
                     PushNotification(
                         data = NotificationData(
-                            title = user.value?.username ?: firebaseUser.uid,
-                            message = message
+                            title = user.value?.username ?: currentUser.uid,
+                            message = message,
+                            senderId = currentUser.uid,
                         ),
                         to = topic.value!!
                     )
@@ -107,8 +109,8 @@ class ChatViewModel(
         _state.value = ChatState.Loading
         try {
             viewModelScope.launch(dispatcher) {
-                val firebaseUser: FirebaseUser? = firebaseAuth.currentUser
-                val userReference = firebaseDatabase.getReference(REF_USERS).child(firebaseUser?.uid!!)
+                val currentUser: FirebaseUser? = firebaseAuth.currentUser
+                val userReference = firebaseDatabase.getReference(REF_USERS).child(currentUser?.uid!!)
                 val messagesReference = firebaseDatabase.getReference(REF_MESSAGES)
 
                 userReference.addValueEventListener(object : ValueEventListener {
@@ -127,8 +129,8 @@ class ChatViewModel(
                         for (dataSnapshot in snapshot.children) {
                             val message = dataSnapshot.getValue(Message::class.java)
                             message?.let {
-                                if (message.senderId == firebaseUser.uid && message.receiverId == userId ||
-                                    message.senderId == userId && message.receiverId == firebaseUser.uid
+                                if (message.senderId == currentUser.uid && message.receiverId == userId ||
+                                    message.senderId == userId && message.receiverId == currentUser.uid
                                 ) {
                                     messages.add(it)
                                 }
