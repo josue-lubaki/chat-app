@@ -12,4 +12,9 @@ object Constants {
     const val CONTENT_TYPE = "application/json"
 
     const val NETWORK_TIME_OUT = 30L
+
+    // Preferences keys
+    const val PREFERENCES_NAME = "ChatAppPreferences"
+    const val FIREBASE_TOKEN_KEY = "firebase_token"
+    const val ID_USER = "id_user"
 }

@@ -123,4 +123,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-messaging")
+
+    // DataStore Preferences
+    implementation(libs.androidx.datastore.preferences)
 }

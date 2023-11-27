@@ -9,6 +9,7 @@ import ca.josue_lubaki.login.di.loginModules
 import ca.josue_lubaki.register.di.registerModules
 import com.google.firebase.Firebase
 import com.google.firebase.initialize
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 /**
@@ -26,13 +27,14 @@ class MyChatApp : Application() {
 
             // modules
             startKoin {
+                androidContext(this@MyChatApp)
                 modules(
                     commonModules +
-                            registerModules +
-                            loginModules +
-                            dashboardModules +
-                            profileModules +
-                            chatModules
+                    registerModules +
+                    loginModules +
+                    dashboardModules +
+                    profileModules +
+                    chatModules
                 )
             }
         }

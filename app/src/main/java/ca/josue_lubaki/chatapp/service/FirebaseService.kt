@@ -5,18 +5,19 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import ca.josue_lubaki.chatapp.MainActivity
 import ca.josue_lubaki.common.R
-import ca.josue_lubaki.common.navigation.ScreenTarget
+import ca.josue_lubaki.common.domain.usecases.SharedPreferencesUseCase
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import org.koin.android.ext.android.inject
 import kotlin.random.Random
 
 /**
@@ -27,24 +28,15 @@ import kotlin.random.Random
 
 private const val CHANNEL_ID = "my_notification_channel"
 class FirebaseService : FirebaseMessagingService() {
-
-    companion object {
-        var sharedPref:SharedPreferences? = null
-
-        var token: String?
-        get() {
-            return sharedPref?.getString("token", "")
-        }
-        set(value) {
-            sharedPref?.edit()?.putString("token", value)?.apply()
-        }
-    }
+    private val sharedPreferencesUseCase: SharedPreferencesUseCase by inject()
 
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
 
         FirebaseInstallations.getInstance().getToken(true).addOnSuccessListener {
-            sharedPref?.edit()?.putString("token", it.token)?.apply()
+            runBlocking(Dispatchers.IO) {
+                sharedPreferencesUseCase.saveFirebaseTokenUseCase(it.token)
+            }
         }
     }
 
@@ -56,6 +48,11 @@ class FirebaseService : FirebaseMessagingService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createNotificationChannel(notificationManager)
+        }
+
+        val userId = sharedPreferencesUseCase.readCurrentUserIdUseCase()
+        if (userId == message.data["senderId"]) {
+            return
         }
 
         val intent = Intent(this, MainActivity::class.java)

@@ -2,6 +2,13 @@ package ca.josue_lubaki.common.di
 
 import ca.josue_lubaki.common.BuildConfig
 import ca.josue_lubaki.common.data.api.NotificationApi
+import ca.josue_lubaki.common.data.datasource.DataStoreOperationsImpl
+import ca.josue_lubaki.common.domain.repository.DataStoreOperations
+import ca.josue_lubaki.common.domain.usecases.SharedPreferencesUseCase
+import ca.josue_lubaki.common.domain.usecases.read_current_user_id.ReadCurrentUserIdUseCase
+import ca.josue_lubaki.common.domain.usecases.read_firebase_token.ReadFirebaseTokenUseCase
+import ca.josue_lubaki.common.domain.usecases.save_current_user_id.SaveCurrentUserIdUseCase
+import ca.josue_lubaki.common.domain.usecases.save_firebase_token.SaveFirebaseTokenUseCase
 import ca.josue_lubaki.common.network.HttpClientFactory
 import ca.josue_lubaki.common.utils.Constants.NETWORK_TIME_OUT
 import com.google.firebase.auth.FirebaseAuth
@@ -11,7 +18,6 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
@@ -34,6 +40,15 @@ val firebaseModule = module {
 
 val utilityModule = module {
     single<CoroutineDispatcher> { Dispatchers.IO }
+    single<DataStoreOperations> { DataStoreOperationsImpl(get()) }
+    single<SharedPreferencesUseCase> {
+        SharedPreferencesUseCase(
+            readCurrentUserIdUseCase = ReadCurrentUserIdUseCase(get()),
+            saveCurrentUserIdUseCase = SaveCurrentUserIdUseCase(get()),
+            readFirebaseTokenUseCase = ReadFirebaseTokenUseCase(get()),
+            saveFirebaseTokenUseCase = SaveFirebaseTokenUseCase(get())
+        )
+    }
 }
 
 val networkModule = module {

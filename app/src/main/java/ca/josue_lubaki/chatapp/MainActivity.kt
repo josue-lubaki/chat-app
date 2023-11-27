@@ -16,9 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import ca.josue_lubaki.chatapp.navigation.NavGraph
 import ca.josue_lubaki.chatapp.ui.theme.ChatAppTheme
-import ca.josue_lubaki.chatapp.service.FirebaseService
+import ca.josue_lubaki.common.data.datasource.DataStoreOperationsImpl
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -26,6 +28,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            // initialize DataStoreOperations
+            val dataStore = DataStoreOperationsImpl(context = this@MainActivity)
 
             FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
@@ -36,7 +41,9 @@ class MainActivity : ComponentActivity() {
                 // Get new FCM registration token
                 val token = task.result
 
-                // TODO : Save token in sharedPref
+                runBlocking(Dispatchers.IO) {
+                    dataStore.saveFirebaseToken(token = token)
+                }
             })
 
             // get "senderId" into Bundle when user receive a notification
@@ -45,15 +52,12 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val windowSize = calculateWindowSizeClass(activity = this)
 
-            FirebaseService.sharedPref = getSharedPreferences("sharedPref", Context.MODE_PRIVATE)
-
             ChatAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-
                     NavGraph(
                         navController = navController,
                         windowSize = windowSize.widthSizeClass,

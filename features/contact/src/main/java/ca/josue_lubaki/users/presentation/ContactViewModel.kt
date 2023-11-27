@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.josue_lubaki.common.domain.model.Message
 import ca.josue_lubaki.common.domain.model.User
+import ca.josue_lubaki.common.domain.usecases.SharedPreferencesUseCase
 import ca.josue_lubaki.common.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -30,7 +31,8 @@ class ContactViewModel(
     private val dispatcher: CoroutineDispatcher,
     private val firebaseAuth : FirebaseAuth,
     private val firebaseDatabase : FirebaseDatabase,
-    private val firebaseMessaging : FirebaseMessaging
+    private val firebaseMessaging : FirebaseMessaging,
+    private val sharedPreferencesUseCase: SharedPreferencesUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ContactState>(ContactState.Idle)
@@ -53,6 +55,7 @@ class ContactViewModel(
 
                 // subscribe to topic
                 firebaseMessaging.subscribeToTopic("${Constants.TOPICS}/${currentUser?.uid}")
+                sharedPreferencesUseCase.saveCurrentUserIdUseCase(currentUser?.uid!!)
 
                 val lastMessages: HashMap<String, String> = hashMapOf()
 
@@ -64,7 +67,7 @@ class ContactViewModel(
                         for (userSnapshot in usersSnapshot.children) {
                             val user: User? = userSnapshot.getValue(User::class.java)
 
-                            if (user!!.userId != currentUser?.uid) {
+                            if (user!!.userId != currentUser.uid) {
                                 users.add(user)
                             }
                             else {
@@ -80,8 +83,8 @@ class ContactViewModel(
 
                                     for (userSnapshot in usersSnapshot.children) {
                                         val user: User? = userSnapshot.getValue(User::class.java)
-                                        if(message.senderId == currentUser?.uid && message.receiverId == user?.userId ||
-                                            message.senderId == user?.userId && message.receiverId == currentUser?.uid){
+                                        if(message.senderId == currentUser.uid && message.receiverId == user?.userId ||
+                                            message.senderId == user?.userId && message.receiverId == currentUser.uid){
                                             if (message.senderId == currentUser.uid) {
                                                 lastMessages[message.receiverId] = message.message
                                             } else {
