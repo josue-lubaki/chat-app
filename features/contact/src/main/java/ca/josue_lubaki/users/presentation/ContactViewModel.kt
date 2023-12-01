@@ -53,13 +53,11 @@ class ContactViewModel(
                 val usersReference = firebaseDatabase.getReference(Constants.REF_USERS)
                 val messagesReference = firebaseDatabase.getReference(Constants.REF_MESSAGES)
 
-                // subscribe to topic
-                firebaseMessaging.subscribeToTopic("${Constants.TOPICS}/${currentUser?.uid}")
                 sharedPreferencesUseCase.saveCurrentUserIdUseCase(currentUser?.uid!!)
 
                 val lastMessages: HashMap<String, String> = hashMapOf()
 
-                usersReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                usersReference.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(usersSnapshot: DataSnapshot) {
                         val users: MutableList<User> = ArrayList()
                         var me: User? = null
@@ -71,12 +69,11 @@ class ContactViewModel(
                                 users.add(user)
                             }
                             else {
-                                Firebase.messaging.subscribeToTopic("${Constants.TOPICS}/${user.userId}")
                                 me = user
                             }
                         }
 
-                        messagesReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                        messagesReference.addValueEventListener(object : ValueEventListener {
                             override fun onDataChange(messagesSnapshot: DataSnapshot) {
                                 for (messageSnapshot in messagesSnapshot.children) {
                                     val message = messageSnapshot.getValue(Message::class.java) ?: continue

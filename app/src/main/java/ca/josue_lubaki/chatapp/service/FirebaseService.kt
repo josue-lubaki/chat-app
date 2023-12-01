@@ -50,11 +50,6 @@ class FirebaseService : FirebaseMessagingService() {
             createNotificationChannel(notificationManager)
         }
 
-        val userId = sharedPreferencesUseCase.readCurrentUserIdUseCase()
-        if (userId == message.data["senderId"]) {
-            return
-        }
-
         val intent = Intent(this, MainActivity::class.java)
         val senderId = message.data["senderId"]!!
         intent.putExtra("senderId", senderId)
@@ -80,7 +75,7 @@ class FirebaseService : FirebaseMessagingService() {
             /* name = */ "channelFirebase",
             /* importance = */ NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = " My Firebase chat description"
+            description = "My Firebase chat description"
             enableLights(true)
             lightColor = Color.WHITE
         }

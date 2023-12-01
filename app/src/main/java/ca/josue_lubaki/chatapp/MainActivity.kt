@@ -17,12 +17,17 @@ import androidx.navigation.compose.rememberNavController
 import ca.josue_lubaki.chatapp.navigation.NavGraph
 import ca.josue_lubaki.chatapp.ui.theme.ChatAppTheme
 import ca.josue_lubaki.common.data.datasource.DataStoreOperationsImpl
+import ca.josue_lubaki.common.utils.Constants
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
+
+    val TAG = MainActivity::class.java.simpleName
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,9 +37,20 @@ class MainActivity : ComponentActivity() {
             // initialize DataStoreOperations
             val dataStore = DataStoreOperationsImpl(context = this@MainActivity)
 
+            // create and subscribe on the topic for current user
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            FirebaseMessaging.getInstance().subscribeToTopic("${Constants.TOPICS}/${currentUser?.uid}")
+                .addOnCompleteListener { task ->
+                    var msg = "Subscribed to topic"
+                    if (!task.isSuccessful) {
+                        msg = "Subscribe failed"
+                    }
+                    Log.d(TAG, msg)
+                }
+
             FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
                 if (!task.isSuccessful) {
-                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    Log.d(TAG, "Fetching FCM registration token failed", task.exception)
                     return@OnCompleteListener
                 }
 

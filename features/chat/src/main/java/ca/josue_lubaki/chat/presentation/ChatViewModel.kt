@@ -36,8 +36,6 @@ class ChatViewModel(
     private val firebaseDatabase : FirebaseDatabase,
     private val notificationApi: NotificationApi
 ) : ViewModel() {
-
-    private val topic = mutableStateOf<String?>(null)
     private val user = mutableStateOf<User?>(null)
 
     private val _state = MutableStateFlow<ChatState>(ChatState.Idle)
@@ -66,22 +64,22 @@ class ChatViewModel(
                 hashMap["receiverId"] = receiverId
                 hashMap["message"] = message
 
-                messagesReference.push().setValue(hashMap)
-
-                // set topic for notification
-                topic.value = "$TOPICS/$receiverId"
-
-                // send notification
-                ChatEvent.OnSendNotification(
-                    PushNotification(
-                        data = NotificationData(
-                            title = user.value?.username ?: currentUser.uid,
-                            message = message,
-                            senderId = currentUser.uid,
-                        ),
-                        to = topic.value!!
-                    )
-                ).reduce()
+                messagesReference
+                    .push()
+                    .setValue(hashMap)
+                    .addOnSuccessListener {
+                        // send notification
+                        ChatEvent.OnSendNotification(
+                            PushNotification(
+                                data = NotificationData(
+                                    title = user.value?.username ?: currentUser.uid,
+                                    message = message,
+                                    senderId = currentUser.uid,
+                                ),
+                                to = "$TOPICS/$receiverId"
+                            )
+                        ).reduce()
+                    }
             }
         } catch (e: Exception) {
             // handle errors
