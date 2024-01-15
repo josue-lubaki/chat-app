@@ -169,11 +169,6 @@ private fun Content(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when(targetState){
-                is ChatState.Loading -> {
-                    Box(contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
-                }
                 is ChatState.Success -> {
                     ChatList(
                         messages = targetState.data,
@@ -199,7 +194,11 @@ private fun Content(
                     }
                 }
 
-                else -> Unit
+                else -> {
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
 
             ChatInput(
@@ -254,7 +253,7 @@ private fun ChatInput(
                         if (isValidate.value) {
                             onSendMessage(message.value)
                             message.value = ""
-                            keyboardController?.show()
+                            keyboardController?.hide()
                         }
                     }
                 ),
@@ -301,14 +300,7 @@ private fun ChatList(
     messages: List<Message>,
     me : User? = null,
 ) {
-    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = messages.size)
-    LaunchedEffect(key1 = messages) {
-        if (messages.isNotEmpty()) {
-            scrollState.scrollToItem(
-                index = messages.size - 1
-            )
-        }
-    }
+    val scrollState = rememberLazyListState(initialFirstVisibleItemIndex = messages.size - 1)
 
     Box(
         modifier = modifier.background(color = MaterialTheme.colorScheme.background),
